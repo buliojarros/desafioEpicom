@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.concurrent.CyclicBarrier;
 
 /**
  * Created by Julio on 13/11/2016.
@@ -55,28 +56,44 @@ public class SkuController {
         Collection<Sku> skus = skuRepository.findAll();
         ArrayList<Sku> skuList = new ArrayList(skus);
 
+        Integer threadCounter = 0;
+        CyclicBarrier barrier;
+        barrier = new CyclicBarrier(skuList.size() + 1);
         for (Sku sku : skuList) {
             //get https://sandboxmhubapi.epicom.com.br/v1/marketplace/produtos/{idProduto}/skus/{id}
-            HttpURLConnection get = null;
-            String params = "?fields=preco";
-            try {
-                get = HttpEpicomConnector.sendGet("https://sandboxmhubapi.epicom.com.br/v1/marketplace/produtos/"
-                        +sku.getProductId()+"/skus/"+sku.getId().toString(), params);
-                if(get.getResponseCode()==200){
-                    InputStream in = get.getInputStream();
-                    LinkedHashMap response = mapper.readValue(in, LinkedHashMap.class);
-                    Double preco = (Double) response.get("preco");
-                    System.out.println("\nSku id : " + sku.getId() + " - Preço : " + preco);
-                    if(preco < 10 || preco > 40){
-                        skus.remove(sku);
+            Thread sendReqThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpURLConnection get = null;
+                    String params = "?fields=preco";
+
+                    try {
+                        get = HttpEpicomConnector.sendGet("https://sandboxmhubapi.epicom.com.br/v1/marketplace/produtos/"
+                                + sku.getProductId() + "/skus/" + sku.getId().toString(), params);
+                        if (get.getResponseCode() == 200) {
+                            InputStream in = get.getInputStream();
+                            LinkedHashMap response = mapper.readValue(in, LinkedHashMap.class);
+                            Double preco = (Double) response.get("preco");
+                            System.out.println("\nSku id : " + sku.getId() + " - Preço : " + preco);
+                            if (preco < 10 || preco > 40) {
+                                skus.remove(sku);
+                            }
+                        } else skus.remove(sku);
+                        barrier.await();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } else skus.remove(sku);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                }
+            });
+            sendReqThread.start();
 
         }
-
+        try {
+            barrier.await(); // finalizado
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         return ResponseEntity.ok(skus);
     }
 
