@@ -10,26 +10,23 @@ import javax.persistence.*;
 public class Sku {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "product_id")
-    private String productId;
+    private Integer productId;
 
-    public Long getId() {
-        return id;
-    }
+    public Integer getId() { return id; }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(String productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 }

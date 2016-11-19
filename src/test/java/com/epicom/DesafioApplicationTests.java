@@ -22,7 +22,7 @@ public class DesafioApplicationTests {
 
 	@Test
 	public void contextLoads() throws Exception{
-		mvc.perform(MockMvcRequestBuilders.get("/").accept(MediaType.APPLICATION_JSON))
+		mvc.perform(MockMvcRequestBuilders.get("/skus").accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 
 	}
