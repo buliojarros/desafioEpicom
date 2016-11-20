@@ -2,6 +2,8 @@ package com.epicom;
 
 import com.epicom.Repository.SkuRepository;
 import com.epicom.controller.SkuController;
+import com.epicom.model.Notificacao;
+import com.epicom.model.Parametros;
 import com.epicom.model.Sku;
 import com.epicom.util.HttpEpicomConnector;
 import org.junit.Before;
@@ -134,5 +136,48 @@ public class DesafioApplicationTests {
 		ResponseEntity<?> response = skuController.updateSku(100, 200);
 		assertEquals(response.getStatusCode(), HttpStatus.OK);
 		assertEquals(((Sku)response.getBody()).getId().longValue(),100L);
+	}
+
+	@Test
+	public void notificaSkuTest_CreateValid_ResponseOk()	{
+		Notificacao notificacao = new Notificacao();
+		notificacao.setTipo("criacao_sku");
+		notificacao.setParametros(new Parametros());
+		notificacao.getParametros().setIdProduto(200);
+		notificacao.getParametros().setIdSku(100);
+
+		ResponseEntity<?> response = skuController.notificaSku(notificacao);
+		assertEquals(response.getStatusCode(), HttpStatus.OK);
+		assertEquals(((Sku)response.getBody()).getId().longValue(),100L);
+	}
+
+	@Test
+	public void notificaSkuTest_NotValid_BadRequest()	{
+		Notificacao notificacao = new Notificacao();
+		notificacao.setTipo("alteracao_sku");
+		notificacao.setParametros(new Parametros());
+		notificacao.getParametros().setIdProduto(200);
+		notificacao.getParametros().setIdSku(100);
+
+		ResponseEntity<?> response = skuController.notificaSku(notificacao);
+		assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+		assertEquals(response.getBody(),"Notificação não esperada");
+	}
+
+
+	@Test
+	public void notificaSkuTest_Empty_BadRequest()	{
+		Notificacao notificacao = new Notificacao();
+
+		ResponseEntity<?> response = skuController.notificaSku(notificacao);
+		assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+		assertEquals(response.getBody(),"Notificação não esperada");
+	}
+
+	@Test
+	public void notificaSkuTest_Null_BadRequest()	{
+		ResponseEntity<?> response = skuController.notificaSku(null);
+		assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+		assertEquals(response.getBody(),"Notificação não esperada");
 	}
 }

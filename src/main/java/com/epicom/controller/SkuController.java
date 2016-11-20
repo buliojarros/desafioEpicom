@@ -167,7 +167,7 @@ public class SkuController {
             method = RequestMethod.POST)
     public ResponseEntity<?> notificaSku(@RequestBody Notificacao notificacao){
 
-        if (notificacao.getTipo().equals("criacao_sku")){
+        if (notificacao != null && ("criacao_sku").equals(notificacao.getTipo())){
             Sku sku = new Sku();
             sku.setProductId(notificacao.getParametros().getIdProduto());
             sku.setId(notificacao.getParametros().getIdSku());
@@ -175,7 +175,7 @@ public class SkuController {
 
             return ResponseEntity.ok(sku);
         }
-        return ResponseEntity.badRequest().body("notificação não esperada");
+        return ResponseEntity.badRequest().body("Notificação não esperada");
 
     }
 
