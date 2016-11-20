@@ -23,12 +23,15 @@ import java.util.concurrent.CyclicBarrier;
 @RequestMapping(value="/v1/")
 public class SkuController {
 
-    private final SkuRepository skuRepository;
+    private SkuRepository skuRepository;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
+    public SkuController() {
+    }
 
     @Autowired
-    SkuController(SkuRepository skuRepository){
+    public SkuController(SkuRepository skuRepository){
         this.skuRepository = skuRepository;
     }
 
@@ -134,22 +137,6 @@ public class SkuController {
     }
 
     /**
-     *      POST /sku - CRIA SKU
-     *      @param productId      id do produto do sku
-     *      @return sku criado
-     * */
-    @RequestMapping(value = "/sku",
-            method = RequestMethod.POST)
-    public ResponseEntity<Sku> createSku(@RequestParam Integer productId){
-
-        Sku sku = new Sku();
-        sku.setProductId(productId);
-        skuRepository.save(sku);
-
-        return ResponseEntity.ok(sku);
-    }
-
-    /**
      *      POST /sku/[id] - CRIA OU ATUALIZA SKU
      *      @param id             id do Sku
      *      @param productId      id do produto do sku
@@ -161,11 +148,10 @@ public class SkuController {
 
         Sku sku = skuRepository.findOne(id);
         if(sku==null){
-            sku = new Sku();
+            sku = new Sku(id,productId);
+        } else {
             sku.setProductId(productId);
-            sku.setId(id);
         }
-        sku.setProductId(productId);
         skuRepository.save(sku);
 
         return ResponseEntity.ok(sku);

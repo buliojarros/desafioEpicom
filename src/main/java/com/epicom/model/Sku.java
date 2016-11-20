@@ -16,6 +16,14 @@ public class Sku {
     @Column(name = "product_id")
     private Integer productId;
 
+    public Sku(Integer id, Integer productId){
+        setId(id);
+        setProductId(productId);
+    }
+
+    public Sku() {
+    }
+
     public Integer getId() { return id; }
 
     public void setId(Integer id) {
